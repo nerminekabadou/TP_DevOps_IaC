@@ -1,0 +1,37 @@
+name: Infrastructure CI/CD Pipeline
+
+# Déclenche le pipeline sur chaque push vers la branche main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Job : Infrastructure Deployment
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Étape 1 : Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+      
+      # Étape 2 : Checkout du code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      # Étape 3 : Init - Initialisation de l'état
+      - name: Terraform Init
+        run: terraform init
+      
+      # Étape 4 : Plan - Validation & Revue (Détection des changements)
+      - name: Terraform Plan
+        run: terraform plan
+      
+      # Étape 5 : Apply - Déploiement Continu (Application des changements)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        # Note: En production, ne pas utiliser -auto-approve
+        # Préférer une validation manuelle ou via Pull Request
