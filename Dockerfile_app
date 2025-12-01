@@ -1,0 +1,33 @@
+# Utilise une image de base très légère (Alpine)
+FROM alpine:latest
+
+# Mise à jour et installation du serveur web Nginx
+RUN apk update && \
+    apk add nginx && \
+    rm -rf /var/cache/apk/*
+
+# Création du répertoire pour les fichiers web Nginx
+RUN mkdir -p /usr/share/nginx/html
+
+# Création d'une page HTML simple comme preuve de déploiement
+RUN echo "<h1>Application Deployed via Terraform IaC!</h1>" > /usr/share/nginx/html/index.html
+
+# Configuration Nginx pour Alpine - Remplacer la config par défaut
+RUN echo 'server { \
+    listen 80 default_server; \
+    listen [::]:80 default_server; \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    location / { \
+        try_files $uri $uri/ =404; \
+    } \
+}' > /etc/nginx/http.d/default.conf
+
+# Création du répertoire pour le PID Nginx
+RUN mkdir -p /run/nginx
+
+# Expose le port par défaut de Nginx
+EXPOSE 80
+
+# Commande pour démarrer Nginx en mode non-démonisé
+CMD ["nginx", "-g", "daemon off;"]

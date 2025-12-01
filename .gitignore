@@ -1,0 +1,16 @@
+# Fichiers et dossiers Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Fichiers sensibles
+*.tfvars
+override.tf
+override.tf.json
+
+# Logs
+*.log
+
+# Autres
+.DS_Store
