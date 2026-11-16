@@ -1,37 +1,55 @@
 name: Infrastructure CI/CD Pipeline
 
-# Déclenche le pipeline sur chaque push vers la branche main
+# Déclenche le pipeline sur chaque push et pull request vers main
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  # Job : Infrastructure Deployment
   deploy-infrastructure:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # Étape 1 : Setup Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-      
-      # Étape 2 : Checkout du code
       - name: Checkout Repository
-        uses: actions/checkout@v3
-      
-      # Étape 3 : Init - Initialisation de l'état
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      # Mot de passe éphémère pour la base de données de démonstration
+      - name: Generate DB password
+        run: echo "TF_VAR_db_password=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
       - name: Terraform Init
         run: terraform init
-      
-      # Étape 4 : Plan - Validation & Revue (Détection des changements)
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Plan - Revue des changements
       - name: Terraform Plan
-        run: terraform plan
-      
-      # Étape 5 : Apply - Déploiement Continu (Application des changements)
+        run: terraform plan -out=tfplan
+
+      # Apply - Déploiement (sur le runner éphémère de GitHub)
       - name: Terraform Apply
-        run: terraform apply -auto-approve
-        # Note: En production, ne pas utiliser -auto-approve
-        # Préférer une validation manuelle ou via Pull Request
+        run: terraform apply -auto-approve tfplan
+
+      # Vérifie que l'application répond
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 10); do
+            curl -fsS "$(terraform output -raw app_access_url)" | grep "Deployed via Terraform" && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Terraform Destroy
+        if: always()
+        run: terraform destroy -auto-approve

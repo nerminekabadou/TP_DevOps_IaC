@@ -1,5 +1,5 @@
 # Utilise une image de base très légère (Alpine)
-FROM alpine:latest
+FROM alpine:3.20
 
 # Mise à jour et installation du serveur web Nginx
 RUN apk update && \

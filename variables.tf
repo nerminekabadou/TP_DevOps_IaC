@@ -13,10 +13,9 @@ variable "db_user" {
 }
 
 variable "db_password" {
-  description = "Mot de passe PostgreSQL (ATTENTION: Simulé, ne pas utiliser en Prod !)"
+  description = "Mot de passe PostgreSQL (à fournir via TF_VAR_db_password, jamais dans le code)."
   type        = string
-  default     = "newstrongpassword123"
-  sensitive   = true  # Masque la valeur dans les logs Terraform
+  sensitive   = true # Masque la valeur dans les logs Terraform
 }
 
 # --- Variables d'Application ---

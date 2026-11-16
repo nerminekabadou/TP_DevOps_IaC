@@ -4,7 +4,7 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 3.0.1"  # Spécifie le provider Docker
+      version = "~> 3.0.1" # Spécifie le provider Docker
     }
   }
 }
@@ -15,8 +15,8 @@ provider "docker" {}
 
 # Télécharge l'image PostgreSQL depuis Docker Hub
 resource "docker_image" "postgres_image" {
-  name         = "postgres:latest"
-  keep_locally = true  # Garde l'image localement après destroy
+  name         = "postgres:16-alpine"
+  keep_locally = true # Garde l'image localement après destroy
 }
 
 # Crée et configure le conteneur PostgreSQL
@@ -26,7 +26,7 @@ resource "docker_container" "db_container" {
 
   ports {
     internal = 5432
-    external = 5432  # Mappage au port par défaut 5432
+    external = 5432 # Mappage au port par défaut 5432
   }
 
   # Configuration de la DB via les variables d'environnement
@@ -42,9 +42,9 @@ resource "docker_container" "db_container" {
 # Construit l'image de l'application à partir du Dockerfile_app local
 resource "docker_image" "app_image" {
   name = "tp-web-app:latest"
-  
+
   build {
-    context    = "."              # Répertoire courant
+    context    = "." # Répertoire courant
     dockerfile = "Dockerfile_app"
   }
 }
