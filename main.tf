@@ -4,7 +4,7 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 3.0.1" # Spécifie le provider Docker
+      version = "~> 4.7.0" # Spécifie le provider Docker
     }
   }
 }
